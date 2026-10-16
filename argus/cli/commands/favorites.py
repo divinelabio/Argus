@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 from typing import List
 
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -19,7 +19,7 @@ console = Console()
 
 
 class FavoritesMixin:
-    _fav_parser = argparse.ArgumentParser(description="Manage favourites")
+    _fav_parser = Cmd2ArgumentParser(description="Manage favourites")
     _fav_parser.add_argument("tokens", nargs="*")
 
     @with_argparser(_fav_parser)

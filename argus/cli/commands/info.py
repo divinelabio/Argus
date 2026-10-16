@@ -4,7 +4,7 @@ import argparse
 import re
 from typing import List, Tuple
 
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 from rich.console import Console, Group
 from rich.panel import Panel
 from rich.text import Text
@@ -35,7 +35,7 @@ def _kv_block(pairs: List[Tuple[str, str | int | bool]]) -> Group:
 
 class InfoMixin:
 
-    _show_parser = argparse.ArgumentParser(description="Show things")
+    _show_parser = Cmd2ArgumentParser(description="Show things")
     _sub = _show_parser.add_subparsers(dest="what")
     for itm in ("modules", "options", "options_full", "api_status"):
         _sub.add_parser(itm)
@@ -128,7 +128,7 @@ class InfoMixin:
         console.print()
         self._print_status_bar()
 
-    _grep_parser = argparse.ArgumentParser(description="Regex search in last output")
+    _grep_parser = Cmd2ArgumentParser(description="Regex search in last output")
     _grep_parser.add_argument("pattern")
     _grep_parser.add_argument("--case-sensitive", action="store_true", help="case sensitive search")
     _grep_parser.add_argument("--count", action="store_true", help="show only count of matches")
@@ -211,7 +211,7 @@ class InfoMixin:
     def do_hm(self, arg: str) -> None:
         self.do_helpmod(arg)
 
-    _api_parser = argparse.ArgumentParser(description="Manage API keys")
+    _api_parser = Cmd2ArgumentParser(description="Manage API keys")
     _api_parser.add_argument("service", nargs="?", help="Service name or ID")
     _api_parser.add_argument("key", nargs="?", help="API key value")
 

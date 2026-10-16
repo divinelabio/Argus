@@ -1,7 +1,7 @@
 from typing import List
 
 import argparse
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 
 from rich.console import Console
 from rich.panel import Panel
@@ -53,7 +53,7 @@ class BrowseMixin:
         console.print()
         self._print_status_bar()
 
-    _search_parser = argparse.ArgumentParser(description="Search for modules")
+    _search_parser = Cmd2ArgumentParser(description="Search for modules")
     _search_parser.add_argument("keyword", help="keyword to search")
     _search_parser.add_argument("--exact", action="store_true", help="exact match only")
     _search_parser.add_argument("--case-sensitive", action="store_true", help="case sensitive search")
@@ -114,7 +114,7 @@ class BrowseMixin:
         self.last_search_results = matches
         self._print_status_bar()
 
-    _searchre_parser = argparse.ArgumentParser(description="Regex search modules")
+    _searchre_parser = Cmd2ArgumentParser(description="Regex search modules")
     _searchre_parser.add_argument("pattern", help="Regular expression")
 
     @with_argparser(_search_parser)

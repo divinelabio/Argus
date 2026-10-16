@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse, types
 from typing import List
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -30,7 +30,7 @@ def _flash(msg: str, level: str = "info") -> None:
     console.print(msg, style=style)
 
 class SelectMixin:
-    _use_parser = argparse.ArgumentParser(description="Select a module")
+    _use_parser = Cmd2ArgumentParser(description="Select a module")
     _use_parser.add_argument("identifier", help="ID | Tmp# | name fragment")
 
     @with_argparser(_use_parser)
@@ -91,7 +91,7 @@ class SelectMixin:
         console.print()
         self._print_status_bar()
 
-    _set_parser = argparse.ArgumentParser(description="Set target/threads/option")
+    _set_parser = Cmd2ArgumentParser(description="Set target/threads/option")
     _set_parser.add_argument("tokens", nargs="+", help="Flexible setter syntax")
 
     @with_argparser(_set_parser)
@@ -99,7 +99,7 @@ class SelectMixin:
     def do_set(self, args) -> None:
         self._handle_tokens(args.tokens)
 
-    _unset_parser = argparse.ArgumentParser(description="Unset an option")
+    _unset_parser = Cmd2ArgumentParser(description="Unset an option")
     _unset_parser.add_argument("tokens", nargs="+", help="opt | id opt")
 
     @with_argparser(_unset_parser)

@@ -1,6 +1,6 @@
 
 import argparse
-from cmd2 import with_category, with_argparser
+from cmd2 import with_category, with_argparser, Cmd2ArgumentParser
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -95,7 +95,7 @@ class UtilityMixin:
         
         self._print_status_bar()
 
-    _config_parser = argparse.ArgumentParser(description="Open configuration file")
+    _config_parser = Cmd2ArgumentParser(description="Open configuration file")
     _config_parser.add_argument("editor", nargs="?", help="Specific editor to use")
 
     @with_argparser(_config_parser)

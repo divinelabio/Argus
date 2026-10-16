@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from typing import List
 
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -19,7 +19,7 @@ console = Console()
 
 
 class RunMixin:
-    _run_parser = argparse.ArgumentParser(description="Run modules")
+    _run_parser = Cmd2ArgumentParser(description="Run modules")
     _run_parser.add_argument("ids", nargs="*", help="[module ids] or target override")
     _run_parser.add_argument("--background", action="store_true")
     _run_parser.add_argument("--dry-run", action="store_true", help="show what would be run without executing")
@@ -92,7 +92,7 @@ class RunMixin:
     def _invoke_single(self, module: dict) -> None:
         self._invoke_runner([module["number"]], mode_name=module["name"])
 
-    _runall_parser = argparse.ArgumentParser(description="Run all modules in category")
+    _runall_parser = Cmd2ArgumentParser(description="Run all modules in category")
     _runall_parser.add_argument("category", choices=["infrastructure", "web", "security"])
 
     @with_argparser(_runall_parser)
