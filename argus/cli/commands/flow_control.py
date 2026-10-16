@@ -6,7 +6,7 @@ High-level execution helpers:
 import argparse
 from typing import List
 
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 from rich.console import Console
 
 from argus.core.runner import run_modules
@@ -16,7 +16,7 @@ __mixin_name__ = "FlowControlMixin"
 
 
 class FlowControlMixin:
-    _prof_parser = argparse.ArgumentParser(description="Apply option profile")
+    _prof_parser = Cmd2ArgumentParser(description="Apply option profile")
     _prof_parser.add_argument("name", choices=list(PROFILE_DEFAULTS))
 
     @with_argparser(_prof_parser)

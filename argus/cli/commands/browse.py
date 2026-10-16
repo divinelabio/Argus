@@ -1,7 +1,8 @@
+import re
 from typing import List
 
 import argparse
-from cmd2 import with_argparser, with_category
+from cmd2 import with_argparser, with_category, Cmd2ArgumentParser
 
 from rich.console import Console
 from rich.panel import Panel
@@ -53,103 +54,22 @@ class BrowseMixin:
         console.print()
         self._print_status_bar()
 
-    _search_parser = argparse.ArgumentParser(description="Search for modules")
-    _search_parser.add_argument("keyword", help="keyword to search")
-    _search_parser.add_argument("--exact", action="store_true", help="exact match only")
-    _search_parser.add_argument("--case-sensitive", action="store_true", help="case sensitive search")
-
-    @with_argparser(_search_parser)
-    @with_category("Module Browse")
-    def do_search(self, args) -> None:
-        keyword = args.keyword
-        if args.case_sensitive:
-            keyword = keyword.lower()
-        
-        if args.exact:
-            matches = [m for m in fuzzy_find_modules("") if keyword in m["name"].lower()]
-        else:
-            matches: List = fuzzy_find_modules(keyword)
+    def _print_search_results(self, label: str, matches: List) -> None:
         console = Console()
 
         console.print()
-        header = Text(f"Search: '{keyword}' ", justify="center", style=f"bold white on {TEAL}")
+        header = Text(f"Search: '{label}' ", justify="center", style=f"bold white on {TEAL}")
         console.print(Panel(header, expand=False, padding=(0, 2), style=TEAL))
         console.print()
 
         if not matches:
-            console.print(f":mag_right: No modules matched '{keyword}'", style="bold red")
+            console.print(f":mag_right: No modules matched '{label}'", style="bold red")
             console.print()
             self._print_status_bar()
             return
 
         if len(matches) == 1:
-            self._show_helpmod_tool(matches[0])
-            console.print()
-            self._print_status_bar()
-            return
-
-        id_width = max(len(tool['number']) for tool in matches) + 2
-        name_width = max(len(tool['name']) for tool in matches) + 2
-
-        cols = Text()
-        cols.append("No.".ljust(4), style=f"bold {TEAL}")
-        cols.append("ID".ljust(id_width), style="bold white")
-        cols.append("Name".ljust(name_width), style="bold white")
-        cols.append("Section", style=f"bold {SECTION_COLOR}")
-        console.print(cols)
-        console.print()
-
-        for idx, tool in enumerate(matches, 1):
-            line = Text()
-            line.append(f"{idx}.".ljust(4), style=f"bold {TEAL}")
-            line.append(tool['number'].ljust(id_width), style="white")
-            line.append(tool['name'].ljust(name_width), style="white")
-            line.append(tool['section'], style=SECTION_COLOR)
-            console.print(line)
-
-        console.print()
-        console.print(Text(" Use '<No.>' or '<ID>' with 'use' to select ", style=f"bold white on {TEAL}"))
-        console.print()
-
-        self.last_search_results = matches
-        self._print_status_bar()
-
-    _searchre_parser = argparse.ArgumentParser(description="Regex search modules")
-    _searchre_parser.add_argument("pattern", help="Regular expression")
-
-    @with_argparser(_search_parser)
-    @with_category("Module Browse")
-    def do_search(self, args) -> None:
-        keyword = args.keyword.strip().lower()
-        console = Console()
-
-        fuzzy_hits: List = fuzzy_find_modules(keyword)
-
-        direct_hits = [
-            m for m in fuzzy_hits
-            if keyword in m["name"].lower()
-            or keyword in m.get("description","").lower()
-            or any(keyword in t.lower() for t in m.get("tags", []))
-        ]
-        matches = direct_hits or fuzzy_hits
-
-        console.print()
-        header = Text(f"Search: '{args.keyword}' ", justify="center",
-                    style=f"bold white on {TEAL}")
-        console.print(Panel(header, expand=False, padding=(0, 2), style=TEAL))
-        console.print()
-
-        if not matches:
-            console.print(f":mag_right: No modules matched '{args.keyword}'",
-                        style="bold red")
-            console.print()
-            self._print_status_bar()
-            return
-
-        if len(matches) == 1:
-            self._show_help_tool(matches[0])
-            console.print()
-            self._print_status_bar()
+            self.do_helpmod(matches[0]["number"])
             return
 
         id_w   = max(len(t["number"]) for t in matches) + 2
@@ -177,3 +97,34 @@ class BrowseMixin:
 
         self.last_search_results = matches
         self._print_status_bar()
+
+    _search_parser = Cmd2ArgumentParser(description="Search for modules")
+    _search_parser.add_argument("keyword", help="keyword to search")
+
+    @with_argparser(_search_parser)
+    @with_category("Module Browse")
+    def do_search(self, args) -> None:
+        keyword = args.keyword.strip().lower()
+
+        fuzzy_hits: List = fuzzy_find_modules(keyword)
+
+        direct_hits = [
+            m for m in fuzzy_hits
+            if keyword in m["name"].lower()
+            or keyword in m.get("description","").lower()
+            or any(keyword in t.lower() for t in m.get("tags", []))
+        ]
+        self._print_search_results(args.keyword, direct_hits or fuzzy_hits)
+
+    _searchre_parser = Cmd2ArgumentParser(description="Regex search modules")
+    _searchre_parser.add_argument("pattern", help="Regular expression")
+
+    @with_argparser(_searchre_parser)
+    @with_category("Module Browse")
+    def do_searchre(self, args) -> None:
+        try:
+            re.compile(args.pattern)
+        except re.error:
+            self.perror("Invalid regex.")
+            return
+        self._print_search_results(args.pattern, regex_find_modules(args.pattern))

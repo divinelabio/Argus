@@ -33,7 +33,7 @@ def regex_find_modules(pattern: str):
         rx = re.compile(pattern, re.I)
     except re.error:
         return []
-    return [t for t in tools if rx.search(t["name"])]
+    return [t for t in tools if rx.search(t["name"]) or rx.search(t.get("description", ""))]
 
 def infer_numeric(v: str):
     if v.isdigit():
