@@ -25,6 +25,7 @@ classifiers = [
 ]
 
 dependencies = [
+  "cmd2>=2.4.0,<4",
   "requests>=2.32,<3",
   "urllib3>=2,<3",
   "rich>=13,<14",
